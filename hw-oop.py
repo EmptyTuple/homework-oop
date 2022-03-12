@@ -1,3 +1,6 @@
+from multiprocessing.sharedctypes import Value
+
+
 class Student:
     def __init__(self, name, surname, gender):
         self.name = name
@@ -6,6 +9,14 @@ class Student:
         self.finished_courses = []
         self.courses_in_progress = []
         self.grades = {}
+
+    def __str__(self):
+        self.bio_part1 = f"Имя: {self.name} \nФамилия: {self.surname} \nСредняя оценка за домашние задания: "
+        self.bio_part2 = f"Курсы в процессе изучения: \nЗавершенные курсы: "
+        return self.bio_part1 + self.bio_part2
+
+studen1 = Student("John", "Ort", "male")
+print(studen1)
         
 class Mentor:
     def __init__(self, name, surname):
@@ -21,6 +32,10 @@ class Mentor:
                 student.grades[course] = [grade]
         else:
             return 'Ошибка'
+
+    def __str__(self):
+        mentor_bio = f'Имя: {self.name} \nФамилия: {self.surname}'
+        return mentor_bio
 
 class Lecturer(Mentor):
     def __init__(self, name, surname):
