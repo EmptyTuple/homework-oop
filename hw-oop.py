@@ -1,9 +1,8 @@
 from statistics import mean
 
-# Создаем переменные для хранения списков студентов, преподавателей  и ревьюверов
+# Создаем переменные для хранения списков студентов и преподавателей
 students_list = []
 lecturers_list = []
-reviewers_list = []
 
 class Student:
     def __init__(self, name, surname, gender):
@@ -34,7 +33,7 @@ class Student:
         if len(self.grades) != 0:
             summary_grades = ''
             for course, rate in sorted(self.grades.items(), key=lambda x:mean(x[1])):
-                summary_grades += f'{course}: {mean(rate)}  '
+                summary_grades += f'{course}: {round(mean(rate), 2)}  '
             return summary_grades
         else:
             return 'Оценок пока нет'
@@ -70,7 +69,7 @@ class Lecturer(Mentor):
     def __init__(self, name, surname):
         super().__init__(name, surname)
         self.student_grades = {}
-        lecturers_list.append(self)
+        lecturers_list.append(f'{self.name} {self.surname}')
     
     def calc_avg_grade(self):
         # Создаем функцию, считающую среднее значение оценок студентов.
@@ -78,14 +77,14 @@ class Lecturer(Mentor):
         if len(self.student_grades) != 0:
             summary_grades = ''
             for course, rate in sorted(self.student_grades.items(), key=lambda x:mean(x[1])):
-                summary_grades += f'{course}: {mean(rate)}  '
+                summary_grades += f'{course}: {round(mean(rate), 2)}  '
             return summary_grades
         else:
             return 'Оценок пока нет'
         
     def __lt__(self, other):    
         # Реализуем функцию сравнения лекторов по средней оценке за лекции.
-        # Исходим из логики что лектор может вести разные предметы, вычисляем среднее по все предметам.
+        # Исходим из логики что лектор может вести разные предметы, вычисляем среднее как по предметам, так и общую.
         if isinstance(other, Lecturer) and isinstance(self, Lecturer):
             self.avg_self_lector = mean(sum(self.student_grades.values(), []))
             self.avg_other_lector = mean(sum(other.student_grades.values(), []))
@@ -94,13 +93,14 @@ class Lecturer(Mentor):
             return "Ошибка"
   
     def __str__(self):
-        lecturer_bio = f'Имя: {self.name} \nФамилия: {self.surname} \nСредняя оценка за лекции: {self.calc_avg_grade()}'
+        lecturer_bio = f'Имя: {self.name} \nФамилия: {self.surname} \
+            \nСредняя оценка за лекции по курсам: {self.calc_avg_grade()} \
+            \nОбщая средняя оценка: {mean(sum(self.student_grades.values(), []))}'
         return lecturer_bio 
 
 class Reviewer(Mentor):
     def __init__(self, name, surname):
         super().__init__(name, surname)
-        reviewers_list.append(self)
 
     def rate_hw(self, student, course, grade):
         if isinstance(student, Student) and course in self.courses_attached and course in student.courses_in_progress:
@@ -115,87 +115,92 @@ class Reviewer(Mentor):
         reviewer_bio = f'Имя: {self.name} \nФамилия: {self.surname}'
         return reviewer_bio
 
+# Определяем функции для подсчета средних оценок внутри курсов:
 
-lecturer1 = Lecturer('Иван', 'Иванов')
-lecturer2 = Lecturer('Дорофей', 'Дорофеев')
-reviewer1 = Reviewer('Петр', 'Петров')
-reviewer2 = Reviewer('Сидор', 'Сидоров')
-studen1 = Student("John", "Ort", "male")
-studen2 = Student("John", "Smith", "male")
 
-lecturer1.courses_attached += ['Python']
-lecturer1.courses_attached += ['SQL']
-lecturer2.courses_attached += ['Python']
-lecturer2.courses_attached += ['SQL']
-
-studen1.courses_in_progress += ['Python']
-studen1.courses_in_progress += ['SQL']
-studen1.finished_courses += ['Java']
-
-studen2.courses_in_progress += ['Python']
-studen2.courses_in_progress += ['SQL']
-studen2.finished_courses += ['Java']
-
-studen1.rate_lecturer(lecturer1, 'Python', 4)
-studen1.rate_lecturer(lecturer1, 'Python', 7)
-studen1.rate_lecturer(lecturer1, 'SQL', 5)
-studen1.rate_lecturer(lecturer1, 'SQL', 7)
-
-studen2.rate_lecturer(lecturer1, 'Python', 5)
-studen2.rate_lecturer(lecturer1, 'Python', 8)
-studen2.rate_lecturer(lecturer1, 'SQL', 6)
-studen2.rate_lecturer(lecturer1, 'SQL', 8)
-
-studen1.rate_lecturer(lecturer2, 'Python', 2)
-studen1.rate_lecturer(lecturer2, 'Python', 3)
-studen1.rate_lecturer(lecturer2, 'SQL', 5)
-studen1.rate_lecturer(lecturer2, 'SQL', 4)
-
-reviewer1.courses_attached += ['Python']
-reviewer1.rate_hw(studen1, 'Python', 5)
-reviewer1.rate_hw(studen1, 'Python', 3)
-
-reviewer2.courses_attached += ['SQL']
-reviewer2.rate_hw(studen1, 'SQL', 6)
-reviewer2.rate_hw(studen1, 'SQL', 5)
-
-reviewer1.rate_hw(studen2, 'Python', 7)
-reviewer1.rate_hw(studen2, 'Python', 5)
-
-reviewer2.rate_hw(studen2, 'SQL', 6)
-reviewer2.rate_hw(studen2, 'SQL', 11)
-
-# print(studen1.grades)
-# print(lecturer1)
-# print(lecturer1.courses_attached)
-# print(reviewer1)
-
-print(studen1)
-print(studen2)
-print(studen1 < studen2)
-
-print(lecturer1)
-print(lecturer2)
-print(lecturer1 > lecturer2)
+def get_avg_lectures(lecturers_list, course):
+    grades_sum = 0
+    lecturers_count = 0
+    for lecturer in lecturers_list:
+        if isinstance(lecturer, Lecturer) and course in lecturer.courses_attached:
+            grades_sum += lecturer.student_grades()
+            lecturers_count += 1
+    # if lecturers_count == 0:
+    #     return 'Ошибка'
+    return round(grades_sum / lecturers_count, 2)
 
 
 
- 
-# best_student = Student('Ruoy', 'Eman', 'your_gender')
-# best_student.courses_in_progress += ['Python']
-# best_student.courses_in_progress += ['SQL']
- 
-# cool_mentor = Mentor('Some', 'Buddy')
-# cool_mentor.courses_attached += ['Python']
-# cool_mentor.courses_attached += ['SQL']
+# Полевые испытания
 
-# print(cool_mentor.courses_attached)
- 
-# cool_mentor.rate_hw(best_student, 'Python', 10)
-# cool_mentor.rate_hw(best_student, 'Python', 10)
-# cool_mentor.rate_hw(best_student, 'Python', 10)
-# cool_mentor.rate_hw(best_student, 'Python', 50)
-# cool_mentor.rate_hw(best_student, 'SQL', 10)
-# cool_mentor.rate_hw(best_student, 'SQL', 30)
+student_001 = Student("Алексей", "Алексеев", "male")
+student_002 = Student("Сергей", "Сергеев", "male")
 
-# print(best_student.grades)
+lecturer_001 = Lecturer('Иван', 'Иванов')
+lecturer_002 = Lecturer('Дорофей', 'Дорофеев')
+
+reviewer_001 = Reviewer('Петр', 'Петров')
+reviewer_002 = Reviewer('Сидор', 'Сидоров')
+
+student_001.courses_in_progress += ['Python']
+student_001.courses_in_progress += ['SQL']
+student_001.finished_courses += ['Java']
+
+student_002.courses_in_progress += ['Python']
+student_002.courses_in_progress += ['C++']
+student_002.finished_courses += ['Java']
+
+lecturer_001.courses_attached += ['Python']
+lecturer_001.courses_attached += ['SQL']
+lecturer_002.courses_attached += ['Python']
+lecturer_002.courses_attached += ['C++']
+
+student_001.rate_lecturer(lecturer_001, 'Python', 4)
+student_001.rate_lecturer(lecturer_002, 'Python', 5)
+student_001.rate_lecturer(lecturer_001, 'SQL', 5)
+student_001.rate_lecturer(lecturer_001, 'SQL', 3)
+
+student_002.rate_lecturer(lecturer_001, 'Python', 3)
+student_002.rate_lecturer(lecturer_002, 'Python', 2)
+student_002.rate_lecturer(lecturer_002, 'C++', 4)
+student_002.rate_lecturer(lecturer_002, 'C++', 5)
+student_002.rate_lecturer(lecturer_002, 'C++', 2)
+
+reviewer_001.courses_attached += ['Python']
+reviewer_001.courses_attached += ['SQL']
+reviewer_002.courses_attached += ['C++']
+
+reviewer_001.rate_hw(student_001, 'Python', 5)
+reviewer_001.rate_hw(student_001, 'Python', 3)
+reviewer_001.rate_hw(student_001, 'Python', 5)
+reviewer_001.rate_hw(student_001, 'SQL', 2)
+reviewer_001.rate_hw(student_001, 'SQL', 3)
+reviewer_001.rate_hw(student_002, 'Python', 4)
+reviewer_001.rate_hw(student_002, 'Python', 1)
+reviewer_001.rate_hw(student_002, 'Python', 3)
+reviewer_002.rate_hw(student_002, 'C++', 4)
+reviewer_002.rate_hw(student_002, 'C++', 5)
+
+# Печатаем отчеты:
+
+# print(student_001)
+# print()
+# print(student_002)
+# print()
+# print(student_001 < student_002)
+# print()
+
+# print(reviewer_001)
+# print()
+# print(reviewer_002)
+# print()
+
+# print(lecturer_001)
+# print()
+# print(lecturer_002)
+# print()
+# print(lecturer_001 < lecturer_002)
+# print()
+print(*lecturers_list)
+print(len(lecturers_list))
+# get_avg_lectures(lecturers_list, 'Python')
