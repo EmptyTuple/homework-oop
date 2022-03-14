@@ -69,7 +69,7 @@ class Lecturer(Mentor):
     def __init__(self, name, surname):
         super().__init__(name, surname)
         self.student_grades = {}
-        lecturers_list.append(f'{self.name} {self.surname}')
+        lecturers_list.append(self)
     
     def calc_avg_grade(self):
         # Создаем функцию, считающую среднее значение оценок студентов.
@@ -117,17 +117,15 @@ class Reviewer(Mentor):
 
 # Определяем функции для подсчета средних оценок внутри курсов:
 
-
-def get_avg_lectures(lecturers_list, course):
+# Средняя оценка студентами курса (принт внизу в блоке полевые испытания):
+def get_avg_course_rate(lecturers_list, course):
     grades_sum = 0
-    lecturers_count = 0
+    grades_count = 0
     for lecturer in lecturers_list:
         if isinstance(lecturer, Lecturer) and course in lecturer.courses_attached:
-            grades_sum += lecturer.student_grades()
-            lecturers_count += 1
-    # if lecturers_count == 0:
-    #     return 'Ошибка'
-    return round(grades_sum / lecturers_count, 2)
+            grades_sum += mean(lecturer.student_grades[course])
+            grades_count += 1
+    return (f'Средняя оценка студентов курса {course}: {round(grades_sum / grades_count, 2)}')
 
 
 
@@ -201,6 +199,8 @@ reviewer_002.rate_hw(student_002, 'C++', 5)
 # print()
 # print(lecturer_001 < lecturer_002)
 # print()
-print(*lecturers_list)
-print(len(lecturers_list))
-# get_avg_lectures(lecturers_list, 'Python')
+
+# print(get_avg_course_rate(lecturers_list, 'Python'))
+# print(get_avg_course_rate(lecturers_list, 'SQL'))
+# print(get_avg_course_rate(lecturers_list, 'C++'))
+
