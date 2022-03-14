@@ -125,12 +125,19 @@ def get_avg_course_rate(lecturers_list, course):
         if isinstance(lecturer, Lecturer) and course in lecturer.courses_attached:
             grades_sum += mean(lecturer.student_grades[course])
             grades_count += 1
-    return (f'Средняя оценка студентов курса {course}: {round(grades_sum / grades_count, 2)}')
+    return f'Средняя оценка студентов курса {course}: {round(grades_sum / grades_count, 2)}'
 
-
+# Средняя оценка за домашние задания в рамках курса (принт также внизу):
+def get_avg_hwgrade_course(students_list, course):
+    all_students_grades = 0
+    students_count = 0
+    for student in students_list:
+        if isinstance(student, Student) and course in student.courses_in_progress:
+            all_students_grades += mean(student.grades[course])
+            students_count += 1
+    return f'Средняя оценка за домашние задания в рамках курса {course}: {round(all_students_grades / students_count, 2)}'
 
 # Полевые испытания
-
 student_001 = Student("Алексей", "Алексеев", "male")
 student_002 = Student("Сергей", "Сергеев", "male")
 
@@ -181,26 +188,29 @@ reviewer_002.rate_hw(student_002, 'C++', 5)
 
 # Печатаем отчеты:
 
-# print(student_001)
-# print()
-# print(student_002)
-# print()
-# print(student_001 < student_002)
-# print()
+print(student_001)
+print()
+print(student_002)
+print()
+print(student_001 < student_002)
+print()
 
-# print(reviewer_001)
-# print()
-# print(reviewer_002)
-# print()
+print(reviewer_001)
+print()
+print(reviewer_002)
+print()
 
-# print(lecturer_001)
-# print()
-# print(lecturer_002)
-# print()
-# print(lecturer_001 < lecturer_002)
-# print()
+print(lecturer_001)
+print()
+print(lecturer_002)
+print()
+print(lecturer_001 < lecturer_002)
+print()
 
-# print(get_avg_course_rate(lecturers_list, 'Python'))
-# print(get_avg_course_rate(lecturers_list, 'SQL'))
-# print(get_avg_course_rate(lecturers_list, 'C++'))
+print(get_avg_course_rate(lecturers_list, 'Python'))
+print(get_avg_course_rate(lecturers_list, 'SQL'))
+print(get_avg_course_rate(lecturers_list, 'C++'))
 
+print(get_avg_hwgrade_course(students_list, 'Python'))
+print(get_avg_hwgrade_course(students_list, 'SQL'))
+print(get_avg_hwgrade_course(students_list, 'C++'))
